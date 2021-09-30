@@ -42,30 +42,34 @@ validaCelula :: Celula -> Bool
 validaCelula [] = True
 validaCelula celula = pilha celula
 
-rand :: Int
-rand = unsafePerformIO (getStdRandom (randomR (1, 8)))
+-- rand :: IO Int 
+-- rand = randomRIO (1, 10)
 
+rlist :: [Int]
+rlist = take 9 $ randomRs (1,10) (mkStdGen 2)
+
+-- CRIA TABULEIRO
 geraTabuleiro :: Tabuleiro
-geraTabuleiro = [geraLinha 0 0 7 , geraLinha 1 0 7 , geraLinha 2 0 7 , geraLinha 3 0 7 , geraLinha 4 0 7 , geraLinha 5 0 7 , geraLinha 6 0 7, geraLinha 7 0 7 ]
+geraTabuleiro = [geraLinha 0 0 7 rlist, geraLinha 1 0 7 rlist, geraLinha 2 0 7 rlist, geraLinha 3 0 7 rlist, geraLinha 4 0 7 rlist, geraLinha 5 0 7 rlist, geraLinha 6 0 7 rlist, geraLinha 7 0 7 rlist]
 
 --geraLinha :: Int -> Int -> Int -> Linha -> Linha
 -- >>>geraLinha 1 0 7
 -- [[Pedra],[Grama],[Grama],[Grama],[Grama],[Grama],[Jogador1,Grama],[Pedra]]
-geraLinha :: Int -> Int -> Int -> Linha
-geraLinha l c t
-                 | l == 0 && c == 0 = [Pedra] : geraLinha l (c+1) t
-                 | (l == 0 || l == t) && c < t = [Pedra] : geraLinha l (c+1) t  -- 1ª e ultima linha
+geraLinha :: Int -> Int -> Int -> [Int] -> Linha
+geraLinha l c t listaRand
+                 | l == 0 && c == 0 = [Pedra] : geraLinha l (c+1) t listaRand
+                 | (l == 0 || l == t) && c < t = [Pedra] : geraLinha l (c+1) t listaRand-- 1ª e ultima linha
                  | c == t && l <= t =  [Pedra] : [] -- ultima coluna
-                 | c == 0 && l /= t = [Pedra]  : geraLinha l (c+1) t  -- inicio da linha
-                 | l == 1 && c == 6 = [Jogador1, Grama] : geraLinha l (c+1) t -- seta jogador 1
-                 | l == 1 && c < (t-1) = [Grama] : geraLinha l (c+1) t  -- linha superior
-                 | even l && even c && c /= t  = [Pedra] : geraLinha l (c+1) t
-                 | l == 3 && c == 1 = [Jogador2, Grama] : geraLinha l (c+1) t -- seta jogador 2
-                 | l == 6 && c == 5 = [Jogador3, Grama] : geraLinha l (c+1) t -- seta jogador 3
-                 | otherwise = sortItem rand : geraLinha l (c+1) t
+                 | c == 0 && l /= t = [Pedra]  : geraLinha l (c+1) t listaRand -- inicio da linha
+                 | l == 1 && c == 6 = [Jogador1, Grama] : geraLinha l (c+1) t listaRand -- seta jogador 1
+                 | l == 1 && c < (t-1) = [Grama] : geraLinha l (c+1) t listaRand -- linha superior
+                 | even l && even c && c /= t  = [Pedra] : geraLinha l (c+1) t listaRand
+                 | l == 3 && c == 1 = [Jogador2, Grama] : geraLinha l (c+1) t listaRand-- seta jogador 2
+                 | l == 6 && c == 5 = [Jogador3, Grama] : geraLinha l (c+1) t listaRand-- seta jogador 3
+                 | otherwise = sortItem (last (take c listaRand)) : geraLinha l (c+1) t listaRand
+                
 
---sortItem :: Int -> Celula
-sortItem :: (Eq a, Num a) => a -> [Item]
+sortItem :: Int -> Celula
 sortItem i
             | i == 1 = [Parede]
             | i == 2 = [Grama]
@@ -109,13 +113,28 @@ listaJogadores (x:xs) l = linha ++ listaJogadores xs (l + 1)
    where
       linha = inicializaJogadores x l 0
 
+-- Inicializa os jogadores
 inicializaJogadores :: Linha -> Int -> Int -> [Jogador]
 inicializaJogadores [] _ _ = []
 inicializaJogadores (x:xs) l c
    | vazio x = inicializaJogadores xs l (c + 1)
-   | not (verificaJogador topo) = inicializaJogadores xs l (c + 1)
-   | otherwise = (jogadorId topo, (l, c), N, ((Patins, 0), (Fogo, 0), (Arremesso, 0))) : inicializaJogadores xs l (c + 1)
-   where
-      (topo:_) = x
+   | verificaJogador (head x) == False = inicializaJogadores xs l (c + 1)
+   | otherwise = (jogadorId (head x), (l, c), N, ((Patins, 0), (Fogo, 0), (Arremesso, 0))) : inicializaJogadores xs l (c + 1)
+  
+-- posicaoJogador :: Jogador -> [Jogador] -> Int -> Int
+-- posicaoJogador j js = snd (take (jogadorId j) js)
+
+-- direcaoJogador :: Jogador -> [Jogador] -> Direcao
+-- direcaoJogador j js = last (take 3 (take (jogadorId j) js))
+
+-- -- MOVIMENTAÇÃO
+-- movimentaJogador :: Tabuleiro -> Jogador -> [Jogador] -> Direcao -> Tabuleiro
+-- movimentaJogador t j js d
+--         | d == direcaoJogador j js && movimentacaoValida t fst (posicaoJogador j js) snd (posicaoJogador j js) = novo Tab
 
 
+-- movimentacaoValida :: Tabuleiro -> Int -> Int -> Bool
+-- movimentacaoValida t l c
+--         | head (acessaCelula t l c) == Pedra = False
+--         | head (acessaCelula t l c) == Parede = False 
+--         | otherwise = True
