@@ -31,9 +31,11 @@ pilha :: Celula -> Bool
 pilha [] = True
 pilha [x] = x == Grama || x == Parede || x == Pedra
 pilha (x:xs)
-        |x == Grama || x == Parede || x == Pedra = null xs
-        |x == Arremesso || x == Patins || x == Fogo || x == Bomba || x == Jogador1 || x == Jogador2 || x == Jogador3 || x == Parede = a == Grama && pilha xs
-        |otherwise = a == Grama || presente a == 'A' || presente a == 'P' -- Ou é grama ou presente
+        | (x == Grama || x == Pedra) && xs == [] = True
+        | (x == Arremesso || x == Patins || x == Fogo || x == Bomba) && a == Grama = True
+        | (x == Jogador1 || x == Jogador2 || x == Jogador3) && a == Grama = True
+        | x == Parede && (a == Grama || xs == [] || a == Arremesso || a == Patins || a == Fogo) = pilha xs
+        | otherwise = False
         where a = head xs
 
 -- Verifica se uma celula é valida por meio das regras pilha
