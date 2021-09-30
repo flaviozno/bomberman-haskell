@@ -1,5 +1,7 @@
 ## Install System.Random ##
+Utilizamos o __System.Random__ para gerar os numeros de forma aleatório para  o tabuleiro.
 
+Para instalar ele utilizamos:
 ```script
 https://www.haskell.org/cabal/download.html --> windows
 

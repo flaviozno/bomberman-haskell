@@ -26,7 +26,7 @@ presente x
         | x == Patins = 'P'
         | x == Fogo = 'F'
 
-
+-- Regras da pilha de acordo com a sobreposicao
 pilha :: Celula -> Bool
 pilha [] = True
 pilha [x] = x == Grama || x == Parede || x == Pedra
@@ -36,19 +36,18 @@ pilha (x:xs)
         |otherwise = a == Grama || presente a == 'A' || presente a == 'P' -- Ou é grama ou presente
         where a = head xs
 
+-- Verifica se uma celula é valida por meio das regras pilha
 validaCelula :: Celula -> Bool
 validaCelula [] = True
 validaCelula celula = pilha celula
 
+-- Lista de numeros aleatorios 
 rlist :: [Int]
 rlist = take 9 $ randomRs (1,10) (mkStdGen 2)
 
 -- CRIA TABULEIRO
-geraTabuleiro :: Tabuleiro
-geraTabuleiro = [geraLinha 0 0 7 rlist, geraLinha 1 0 7 rlist, geraLinha 2 0 7 rlist, geraLinha 3 0 7 rlist, geraLinha 4 0 7 rlist, geraLinha 5 0 7 rlist, geraLinha 6 0 7 rlist, geraLinha 7 0 7 rlist]
 
--- >>>geraLinha 1 0 7
--- [[Pedra],[Grama],[Grama],[Grama],[Grama],[Grama],[Jogador1,Grama],[Pedra]]
+-- Gera linha por linha para formar o tabuleiro
 geraLinha :: Int -> Int -> Int -> [Int] -> Linha
 geraLinha l c t listaRand
                  | l == 0 && c == 0 = [Pedra] : geraLinha l (c+1) t listaRand
@@ -61,8 +60,12 @@ geraLinha l c t listaRand
                  | l == 3 && c == 1 = [Jogador2, Grama] : geraLinha l (c+1) t listaRand -- seta jogador 2
                  | l == 6 && c == 5 = [Jogador3, Grama] : geraLinha l (c+1) t listaRand -- seta jogador 3
                  | otherwise = sortItem (last (take c listaRand)) : geraLinha l (c+1) t listaRand 
+
+geraTabuleiro :: Tabuleiro
+geraTabuleiro = [geraLinha 0 0 7 rlist, geraLinha 1 0 7 rlist, geraLinha 2 0 7 rlist, geraLinha 3 0 7 rlist, geraLinha 4 0 7 rlist, geraLinha 5 0 7 rlist, geraLinha 6 0 7 rlist, geraLinha 7 0 7 rlist]
+
                 
--- Sorteia uma combinacao
+-- Match da celula 
 sortItem :: Int -> Celula
 sortItem i
             | i == 1 = [Parede]
@@ -97,6 +100,10 @@ jogadorId item
 verificaJogador :: Item -> Bool 
 verificaJogador j = j == Jogador1 || j == Jogador2 || j == Jogador3 
 
+-- Acesso a estrutura de um dado jogador
+pegaJogador :: Item -> [Jogador] -> Jogador
+pegaJogador j lj = last (take (jogadorId j) lj)
+
 -- Cria a lista de jogadores do tabuleiro
 listaJogadores :: Tabuleiro -> Int -> [Jogador]
 listaJogadores [] _ = []
@@ -112,12 +119,16 @@ inicializaJogadores (x:xs) l c
    | verificaJogador (head x) == False = inicializaJogadores xs l (c + 1)
    | otherwise = (jogadorId (head x), (l, c), N, ((Patins, 0), (Fogo, 0), (Arremesso, 0))) : inicializaJogadores xs l (c + 1)
 
--- Acesso a estrutura de um dado jogador
-pegaJogador :: Item -> [Jogador] -> Jogador
-pegaJogador j lj = last (take (jogadorId j) lj)
-
 
 -- MOVIMENTAÇÃO
+
+-- Verifica se a movimentaçao pode ser executada 
+movimentacaoValida :: Tabuleiro -> Int -> Int -> Bool
+movimentacaoValida t l c
+        | head (acessaCelula t l c) == Pedra = False
+        | head (acessaCelula t l c) == Parede = False 
+        | head (acessaCelula t l c) == Bomba = False 
+        | otherwise = True
 
 movimentaJogador :: Tabuleiro -> Jogador -> Direcao -> Jogador
 movimentaJogador t (id, (l, c), dir, ((Patins, p), (Fogo, f), (Arremesso, a))) d
@@ -127,11 +138,5 @@ movimentaJogador t (id, (l, c), dir, ((Patins, p), (Fogo, f), (Arremesso, a))) d
         | d == O && dir == d && movimentacaoValida t l (c-1) = (id, (l, c-1), dir, ((Patins, p), (Fogo, f), (Arremesso, a)))
         | otherwise = (id, (l, c), d, ((Patins, p), (Fogo, f), (Arremesso, a)))
 
--- Verifica se a movimentaçao pode ser executada 
-movimentacaoValida :: Tabuleiro -> Int -> Int -> Bool
-movimentacaoValida t l c
-        | head (acessaCelula t l c) == Pedra = False
-        | head (acessaCelula t l c) == Parede = False 
-        | head (acessaCelula t l c) == Bomba = False 
-        | otherwise = True
+
  
