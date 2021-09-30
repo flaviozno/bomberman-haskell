@@ -105,17 +105,17 @@ verificaJogador j = j == Jogador1 || j == Jogador2 || j == Jogador3
 -- Cria lista de jogadores
 listaJogadores :: Tabuleiro -> Int -> [Jogador]
 listaJogadores [] _ = []
-listaJogadores (l:ls) vl = parcial ++ listaJogadores ls (vl + 1)
+listaJogadores (x:xs) l = linha ++ listaJogadores xs (l + 1)
    where
-      parcial = inicializaJogadores' l vl 0
+      linha = inicializaJogadores x l 0
 
-inicializaJogadores' :: Linha -> Int -> Int -> [Jogador]
-inicializaJogadores' [] _ _ = []
-inicializaJogadores' (c:cs) vl vc
-   | vazio c = inicializaJogadores' cs vl (vc + 1)
-   | not (verificaJogador topo) = inicializaJogadores' cs vl (vc + 1)
-   | otherwise = (jogadorId topo, (vl, vc), N, ((Patins, 0), (Fogo, 0), (Arremesso, 0))) : inicializaJogadores' cs vl (vc + 1)
+inicializaJogadores :: Linha -> Int -> Int -> [Jogador]
+inicializaJogadores [] _ _ = []
+inicializaJogadores (x:xs) l c
+   | vazio x = inicializaJogadores xs l (c + 1)
+   | not (verificaJogador topo) = inicializaJogadores xs l (c + 1)
+   | otherwise = (jogadorId topo, (l, c), N, ((Patins, 0), (Fogo, 0), (Arremesso, 0))) : inicializaJogadores xs l (c + 1)
    where
-      (topo:_) = c
+      (topo:_) = x
 
 
