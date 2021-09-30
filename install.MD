@@ -1,4 +1,6 @@
-```shell
+## Install System.Random ##
+
+```script
 https://www.haskell.org/cabal/download.html --> windows
 
 sudo apt install cabal-install --> linux
