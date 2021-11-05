@@ -1,0 +1,17 @@
+Jogo Bomberman 
+
+O jogo funciona da seguinte maneira:
+
+A colocação da bomba é de acordo com a direção que o jogador está olhando, ou seja, se ele deseja colocar 
+uma bomba acima dele (N) e atualmente ele está olhando para baixo (S), primeiro ele deve ser movido para cima (N), e
+depois disso selecionar a opção "Colocar Bomba". Além disso, optamos por fazer a explosão logo em seguida de
+colocar a bomba, por exemplo: 
+
+- Jogador 1 
+- Mover S
+- Jogador 1
+- Colocar Bomba 
+
+Após essa sequência de entradas, ocorre a explosão de N casas na direção que o jogador estava, onde N é o número 
+de arremessos que o jogador possui. 
+
