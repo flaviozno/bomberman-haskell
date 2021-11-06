@@ -4,7 +4,9 @@ import Text.Read (readMaybe)
 {-
         Alunos: Flávio Vezono Filho 11921BCC014
                 Guilherme Nascimento Leite 11921BCC018 
-                Yasmin Marques Vieira 11921BCC025-}
+                Yasmin Marques Vieira 11921BCC025
+-}
+
 
 
 import System.Random ( mkStdGen, Random(randomRs) )
@@ -101,11 +103,6 @@ vazio pilha
         | null pilha = True
         | otherwise = False
 
-presente :: Item -> Char
-presente x
-        | x == Arremesso = 'A'
-        | x == Patins = 'P'
-        | x == Fogo = 'F'
 
 -- Regras da pilha de acordo com a sobreposicao
 pilha :: Celula -> Bool
@@ -148,6 +145,7 @@ geraLinha l c t listaRand
 geraTabuleiro :: Tabuleiro
 geraTabuleiro = [geraLinha 0 0 7 rlist, geraLinha 1 0 7 rlist, geraLinha 2 0 7 rlist, geraLinha 3 0 7 rlist, geraLinha 4 0 7 rlist, geraLinha 5 0 7 rlist, geraLinha 6 0 7 rlist, geraLinha 7 0 7 rlist]
 
+
 -- Match da celula 
 sortItem :: Int -> Celula
 sortItem i
@@ -161,8 +159,6 @@ sortItem i
             | i == 9 = [Parede] ++ [Arremesso] ++ [Grama]
             | i == 10 = [Parede] ++ [Fogo] ++ [Grama]
 
--- >>> acessaCelula [[[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra]],[[Pedra],[Grama],[Grama],[Grama],[Grama],[Grama],[Jogador1,Grama],[Pedra]],[[Pedra],[Fogo,Grama],[Pedra],[Fogo,Grama],[Pedra],[Fogo,Grama],[Pedra],[Pedra]],[[Pedra],[Jogador2,Grama],[Fogo,Grama],[Fogo,Grama],[Fogo,Grama],[Fogo,Grama],[Fogo,Grama],[Pedra]],[[Pedra],[Fogo,Grama],[Pedra],[Fogo,Grama],[Pedra],[Fogo,Grama],[Pedra],[Pedra]],[[Pedra],[Fogo,Grama],[Fogo,Grama],[Fogo,Grama],[Fogo,Grama],[Fogo,Grama],[Fogo,Grama],[Pedra]],[[Pedra],[Fogo,Grama],[Pedra],[Fogo,Grama],[Pedra],[Jogador3,Grama],[Pedra],[Pedra]],[[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra]]] 1 6
--- [Jogador1,Grama]
 
 -- Acessa uma coordenada do mapa e retorna a celula presente
 acessaCelula :: Tabuleiro -> Int -> Int -> Celula
@@ -276,26 +272,18 @@ atualizaPosicaoJogador (id, (l, c), dir, ((Patins, p), (Fogo, f), (Arremesso, a)
                 | d == O = (id, (l, c-1), dir, ((Patins, p), (Fogo, f), (Arremesso, a)))
 
 
--- ATUALIZACAO DE TABULEIRO
+-- ATUALIZAÇÃO DE TABULEIRO
 
--- ATUALIZA UMA UNICA CELULA DADO LINHA E COLUNA E CELULA E RETORNA TABULEIRO
+-- Atualiza uma célula, recebendo linha, coluna e célula nova, e retorna o tabuleiro atualizado
 atualizaTab :: Tabuleiro -> Int -> Int -> Celula -> Tabuleiro
 atualizaTab tab l c cel = take (l-1) tab ++ [linhaAtualizada] ++ drop l tab
    where
       linhaAtualizada = atualizaCelula (tab !! (l-1)) c cel
 
--- ATUALIZA UMA CELULA EM UMA LINHA E RETORNA LINHA
+--Atualiza a célula em uma linha e retorna a linha
 atualizaCelula :: Linha -> Int -> Celula -> Linha
 atualizaCelula linha c atual = take (c-1) linha ++ [atual] ++ drop c linha
 
--- ATUALIZA UMA LINHA COMPLETA EM UM TABULEIRO E RETORNA TABULEIRO
-atualizaLinha :: Tabuleiro -> Linha -> Int -> Tabuleiro
-atualizaLinha tab atual l = take (l-1) tab ++ [atual] ++ drop l tab
-
--- ATUALIZA UMA COLUNA COMPLETA EM UM TABULEIRO E RETORNA TABULEIRO
-atualizaColuna :: Tabuleiro -> Linha -> Int -> Tabuleiro
-atualizaColuna [] _ vc = []
-atualizaColuna (l:ls) (c:cs) vc = atualizaCelula l vc c : atualizaColuna ls cs vc
 
 colocarBomba :: Tabuleiro -> Jogador -> [Jogador] -> (Tabuleiro, [Jogador])
 colocarBomba t (id, (l, c), dir, ((Patins, p), (Fogo, f), (Arremesso, a))) lj
@@ -304,6 +292,7 @@ colocarBomba t (id, (l, c), dir, ((Patins, p), (Fogo, f), (Arremesso, a))) lj
                                 novaLista = take (id-1) lj ++ [(id, (l, c), dir, ((Patins, p), (Fogo, f), (Arremesso, 0)))] ++ drop id lj
                                 newTab = efetuarExplosoes t dir l c a
 
+-- Explode de acordo com o numero de arremessos do jogador 
 explodirCelula :: Tabuleiro -> Direcao -> Int -> Int -> Int -> (Tabuleiro, Int)
 explodirCelula t d l c a
 
@@ -339,14 +328,3 @@ efetuarExplosoes t d l c a = efetuarExplosoes (fst aux) d l c (snd aux)
                 where
                         aux = explodirCelula t d l c a
 
-
--- Tabuleiro gerado pelo sorteio
-
-{- [[[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra]]
-   [[Pedra],[Grama],[Grama],[Grama],[Grama],[Grama],[Jogador1,Grama],[Pedra]]
-   [[Pedra],[Parede,Fogo,Grama],[Pedra],[Parede],[Pedra],[Arremesso,Grama],[Pedra],[Pedra]]
-   [[Pedra],[Jogador2,Grama],[Parede,Fogo,Grama],[Parede],[Fogo,Grama],[Arremesso,Grama],[Parede,Patins,Grama],[Pedra]]
-   [[Pedra],[Parede,Fogo,Grama],[Pedra],[Parede],[Pedra],[Arremesso,Grama],[Pedra],[Pedra]]
-   [[Pedra],[Parede,Fogo,Grama],[Parede,Fogo,Grama],[Parede],[Fogo,Grama],[Arremesso,Grama],[Parede,Patins,Grama],[Pedra]]
-   [[Pedra],[Parede,Fogo,Grama],[Pedra],[Parede],[Pedra],[Jogador3,Grama],[Pedra],[Pedra]]
-   [[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra],[Pedra]]] -}

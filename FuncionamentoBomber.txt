@@ -1,3 +1,7 @@
+Alunos: Flávio Vezono Filho 11921BCC014
+                Guilherme Nascimento Leite 11921BCC018 
+                Yasmin Marques Vieira 11921BCC025
+
 Jogo Bomberman 
 
 O jogo funciona da seguinte maneira:
